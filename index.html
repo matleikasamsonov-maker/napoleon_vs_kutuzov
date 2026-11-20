@@ -2,8 +2,11 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Наполеон и Око Кутузова — Next-Gen 3D Edition</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="theme-color" content="#07060a">
+    <title>Наполеон и Око Кутузова — Next-Gen 3D Mobile & PC</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@700;900&family=Montserrat:wght@400;600;800&display=swap');
 
@@ -25,17 +28,24 @@
             margin: 0;
             padding: 0;
             user-select: none;
+            -webkit-user-select: none;
+            -webkit-touch-callout: none;
+            -webkit-tap-highlight-color: transparent;
         }
 
-        body {
+        html, body {
+            width: 100%;
+            height: 100%;
+            height: 100dvh;
             background: radial-gradient(circle at 50% 30%, #1e1b2e 0%, #050408 100%);
             color: var(--text-light);
             font-family: 'Montserrat', sans-serif;
             display: flex;
             justify-content: center;
             align-items: center;
-            min-height: 100vh;
             overflow: hidden;
+            overscroll-behavior: none;
+            touch-action: none;
         }
 
         #game-container {
@@ -47,25 +57,44 @@
             box-shadow: 0 25px 80px rgba(0, 0, 0, 0.95), 0 0 40px var(--gold-glow);
             background: #09080d;
             overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
         }
 
-        canvas {
+        #battle-stage {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        canvas#gameCanvas {
             display: block;
             width: 100%;
             height: 100%;
+            object-fit: contain;
+            touch-action: none;
         }
 
         .screen {
             position: absolute;
             inset: 0;
-            background: radial-gradient(circle at 50% 20%, rgba(36, 30, 56, 0.95) 0%, rgba(10, 9, 16, 0.98) 100%);
+            background: radial-gradient(circle at 50% 20%, rgba(36, 30, 56, 0.96) 0%, rgba(10, 9, 16, 0.99) 100%);
             backdrop-filter: blur(14px);
+            -webkit-backdrop-filter: blur(14px);
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: space-between;
             padding: 18px 30px;
             z-index: 10;
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
+            touch-action: pan-y;
         }
 
         .hidden {
@@ -97,12 +126,15 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
+            flex-wrap: wrap;
+            gap: 8px;
             background: rgba(255, 255, 255, 0.04);
             border: 1px solid rgba(245, 197, 66, 0.35);
             padding: 8px 18px;
             border-radius: 12px;
             font-size: 14px;
             box-shadow: inset 0 1px 0 rgba(255,255,255,0.08);
+            flex-shrink: 0;
         }
 
         .treasury {
@@ -117,6 +149,11 @@
             justify-content: space-between;
             align-items: center;
             gap: 24px;
+        }
+
+        .preview-wrap {
+            text-align: center;
+            flex-shrink: 0;
         }
 
         .preview-box {
@@ -163,6 +200,7 @@
             transition: all 0.18s cubic-bezier(0.22, 1, 0.36, 1);
             box-shadow: 0 6px 18px rgba(0,0,0,0.45);
             letter-spacing: 0.4px;
+            touch-action: manipulation;
         }
 
         button:hover:not(:disabled) {
@@ -171,7 +209,7 @@
         }
 
         button:active:not(:disabled) {
-            transform: translateY(1px);
+            transform: scale(0.97);
         }
 
         button:disabled {
@@ -218,6 +256,7 @@
             gap: 12px;
             width: 100%;
             justify-content: center;
+            flex-shrink: 0;
         }
 
         .grid-container {
@@ -227,6 +266,7 @@
             width: 100%;
             max-height: 400px;
             overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
             padding: 6px;
         }
 
@@ -266,6 +306,8 @@
             background: radial-gradient(circle, #28223b 0%, #0e0c17 100%);
             border: 1.5px solid rgba(245, 197, 66, 0.45);
             border-radius: 10px;
+            max-width: 100%;
+            height: auto;
         }
 
         .card-name {
@@ -297,6 +339,7 @@
             width: 100%;
             max-height: 410px;
             overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
             padding: 6px;
         }
 
@@ -350,7 +393,8 @@
         }
 
         .settings-panel {
-            width: 640px;
+            width: 100%;
+            max-width: 640px;
             background: var(--glass-card);
             border: 1.5px solid rgba(245, 197, 66, 0.4);
             border-radius: 16px;
@@ -365,6 +409,8 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
+            flex-wrap: wrap;
+            gap: 8px;
             border-bottom: 1px solid rgba(255, 255, 255, 0.08);
             padding-bottom: 12px;
             font-size: 14px;
@@ -377,7 +423,7 @@
         }
 
         input[type="range"] {
-            width: 190px;
+            width: 170px;
             accent-color: var(--gold);
             cursor: pointer;
         }
@@ -387,6 +433,7 @@
             flex-direction: column;
             align-items: center;
             gap: 6px;
+            text-align: center;
         }
 
         .egg-visual {
@@ -419,17 +466,19 @@
             top: 0;
             left: 0;
             width: 100%;
-            padding: 12px 18px;
+            padding: calc(10px + env(safe-area-inset-top, 0px)) 14px 8px;
             pointer-events: none;
             display: flex;
             justify-content: space-between;
             align-items: flex-start;
+            gap: 8px;
             z-index: 5;
         }
 
         .hud-panel {
             background: rgba(12, 11, 18, 0.84);
             backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
             border: 1.5px solid rgba(245, 197, 66, 0.55);
             border-radius: 12px;
             padding: 9px 15px;
@@ -468,7 +517,9 @@
             z-index: 20;
             box-shadow: 0 25px 80px rgba(0,0,0,0.95), 0 0 35px var(--gold-glow);
             border-radius: 18px;
-            min-width: 480px;
+            width: min(92vw, 480px);
+            max-height: 90dvh;
+            overflow-y: auto;
         }
 
         .stars-showcase {
@@ -507,18 +558,366 @@
         .metric-row {
             display: flex;
             justify-content: space-between;
+            gap: 8px;
+        }
+
+        /* ==========================================
+           СЕНСОРНОЕ УПРАВЛЕНИЕ ДЛЯ ТЕЛЕФОНОВ
+           ========================================== */
+        #mobile-controls {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            padding: 12px 18px calc(16px + env(safe-area-inset-bottom, 0px));
+            display: none;
+            justify-content: space-between;
+            align-items: flex-end;
+            pointer-events: none;
+            z-index: 6;
+        }
+
+        #mobile-controls.active {
+            display: flex;
+        }
+
+        .joystick-zone {
+            position: relative;
+            width: 126px;
+            height: 126px;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(245, 197, 66, 0.12) 0%, rgba(15, 23, 42, 0.58) 100%);
+            border: 2px solid rgba(245, 197, 66, 0.45);
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.55), inset 0 0 18px rgba(245, 197, 66, 0.12);
+            pointer-events: auto;
+            touch-action: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .joystick-crosshair {
+            position: absolute;
+            width: 72%;
+            height: 72%;
+            border-radius: 50%;
+            border: 1px dashed rgba(255, 255, 255, 0.18);
+            pointer-events: none;
+        }
+
+        .joystick-knob {
+            width: 52px;
+            height: 52px;
+            border-radius: 50%;
+            background: radial-gradient(circle at 35% 30%, #fef08a, #f59e0b 65%, #92400e 100%);
+            border: 2px solid #fffbeb;
+            box-shadow: 0 6px 16px rgba(0, 0, 0, 0.7), 0 0 14px rgba(245, 197, 66, 0.5);
+            transform: translate(0px, 0px);
+            pointer-events: none;
+            transition: transform 0.04s linear;
+        }
+
+        .mobile-action-cluster {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+            gap: 10px;
+            pointer-events: auto;
+        }
+
+        .btn-autofire {
+            background: rgba(15, 23, 42, 0.82);
+            color: #cbd5e1;
+            border: 1.5px solid rgba(148, 163, 184, 0.45);
+            border-radius: 20px;
+            padding: 7px 14px;
+            font-size: 11.5px;
+            font-weight: 800;
+            box-shadow: 0 4px 14px rgba(0, 0, 0, 0.5);
+        }
+
+        .btn-autofire.on {
+            background: linear-gradient(135deg, #059669 0%, #10b981 100%);
+            color: #ffffff;
+            border-color: #a7f3d0;
+            box-shadow: 0 0 16px rgba(16, 185, 129, 0.55);
+        }
+
+        .btn-touch-fire {
+            width: 108px;
+            height: 108px;
+            border-radius: 50%;
+            background: radial-gradient(circle at 35% 30%, #fb7185, #e11d48 65%, #881337 100%);
+            border: 3px solid rgba(254, 240, 138, 0.85);
+            color: #ffffff;
+            font-size: 15px;
+            font-weight: 900;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 2px;
+            box-shadow: 0 10px 26px rgba(225, 29, 72, 0.55), inset 0 2px 8px rgba(255, 255, 255, 0.35);
+            touch-action: none;
+        }
+
+        .btn-touch-fire.pressed {
+            transform: scale(0.92);
+            box-shadow: 0 4px 14px rgba(225, 29, 72, 0.8), 0 0 24px rgba(253, 224, 71, 0.65);
+        }
+
+        /* ==========================================
+           АДАПТАЦИЯ ПОД ТЕЛЕФОНЫ И ПЛАНШЕТЫ
+           ========================================== */
+        @media (max-width: 979px), (max-height: 659px) {
+            #game-container {
+                width: 100vw;
+                width: 100dvw;
+                height: 100vh;
+                height: 100dvh;
+                border-radius: 0;
+                border-width: 1.5px;
+            }
+
+            .screen {
+                padding: calc(10px + env(safe-area-inset-top, 0px)) 12px calc(14px + env(safe-area-inset-bottom, 0px));
+                justify-content: flex-start;
+                gap: 10px;
+            }
+
+            h1 { font-size: clamp(19px, 5.2vw, 28px); letter-spacing: 0.8px; }
+            h2 { font-size: clamp(16px, 4.4vw, 22px); letter-spacing: 0.6px; }
+            .subtitle { font-size: 12px; }
+
+            .top-bar {
+                padding: 6px 10px;
+                font-size: 11.5px;
+                gap: 6px;
+            }
+
+            .treasury {
+                font-size: 13px;
+            }
+
+            #hud {
+                padding: calc(6px + env(safe-area-inset-top, 0px)) 8px 6px;
+                gap: 5px;
+            }
+
+            .hud-panel {
+                padding: 6px 8px;
+                border-radius: 9px;
+                flex: 1;
+                min-width: 0;
+            }
+
+            .hud-panel-title {
+                font-size: 9.5px !important;
+                white-space: nowrap;
+                overflow: hidden;
+                text-overflow: ellipsis;
+            }
+
+            .hp-bar-wrap {
+                width: 100%;
+                height: 10px;
+                margin-top: 3px;
+            }
+
+            #hud-live-stats, #boss-hp-text {
+                font-size: 9.5px !important;
+                margin-top: 3px !important;
+            }
+
+            #hud-level-name {
+                font-size: 11px !important;
+                line-height: 1.15;
+            }
+
+            #hud-level-hazard {
+                display: none;
+            }
+
+            #hud .btn-exit {
+                margin-top: 4px !important;
+                padding: 3px 8px !important;
+                font-size: 10px !important;
+            }
+
+            .lobby-center {
+                flex-direction: column;
+                gap: 10px;
+            }
+
+            .preview-box {
+                width: min(260px, 68vw);
+                height: auto;
+                aspect-ratio: 4 / 3;
+            }
+
+            .lobby-play-card {
+                width: 100%;
+                padding: 12px 14px;
+                gap: 8px;
+            }
+
+            #lobby-selected-lvl-title {
+                font-size: 16px !important;
+            }
+
+            .level-modifier-badge {
+                font-size: 11.5px;
+                padding: 5px 10px;
+            }
+
+            .btn-primary {
+                font-size: 17px;
+                padding: 12px 24px;
+            }
+
+            .lobby-actions {
+                display: grid;
+                grid-template-columns: repeat(2, 1fr);
+                gap: 8px;
+            }
+
+            .lobby-actions button {
+                width: 100%;
+                font-size: 11.5px;
+                padding: 10px 8px;
+            }
+
+            .levels-grid {
+                grid-template-columns: repeat(2, 1fr);
+                max-height: none;
+                flex: 1;
+                gap: 8px;
+            }
+
+            .level-tile {
+                min-height: 92px;
+                padding: 8px 6px;
+            }
+
+            .grid-container {
+                grid-template-columns: repeat(2, 1fr);
+                max-height: none;
+                flex: 1;
+                gap: 8px;
+            }
+
+            .card {
+                padding: 8px;
+                gap: 5px;
+            }
+
+            .card-name { font-size: 12.5px; }
+            .card-desc { font-size: 10.5px; }
+
+            .egg-visual {
+                width: 64px;
+                height: 82px;
+                font-size: 30px;
+            }
+
+            .settings-panel {
+                padding: 12px 14px;
+                gap: 10px;
+            }
+
+            .setting-row {
+                font-size: 12.5px;
+                padding-bottom: 9px;
+            }
+
+            input[type="range"] {
+                width: 135px;
+            }
+
+            #end-modal {
+                padding: 16px 14px;
+            }
+
+            .stars-showcase {
+                font-size: 38px;
+                gap: 14px;
+                margin: 8px 0;
+            }
+
+            .metrics-box {
+                font-size: 12px;
+                padding: 9px 11px;
+            }
+        }
+
+        /* Портретная ориентация телефона: поле боя сверху по центру, джойстик и огонь снизу без перекрытия поля */
+        @media (max-width: 767px) and (orientation: portrait) {
+            #game-container.battle-mode {
+                justify-content: space-between;
+            }
+
+            #game-container.battle-mode #battle-stage {
+                margin-top: 66px;
+                width: 100%;
+                height: auto;
+                aspect-ratio: 3 / 2;
+                border-top: 1.5px solid rgba(245, 197, 66, 0.45);
+                border-bottom: 1.5px solid rgba(245, 197, 66, 0.45);
+                box-shadow: 0 10px 30px rgba(0, 0, 0, 0.8);
+            }
+
+            #mobile-controls {
+                position: relative;
+                flex: 1;
+                align-items: center;
+                padding: 8px 20px calc(18px + env(safe-area-inset-bottom, 0px));
+            }
+        }
+
+        /* Альбомная ориентация телефона: компактные панели и удобные кнопки в нижних углах */
+        @media (max-height: 500px) and (orientation: landscape) {
+            .lobby-center {
+                flex-direction: row;
+            }
+            .preview-box {
+                width: 210px;
+            }
+            .lobby-actions {
+                grid-template-columns: repeat(4, 1fr);
+            }
+            .levels-grid {
+                grid-template-columns: repeat(4, 1fr);
+            }
+            .grid-container {
+                grid-template-columns: repeat(3, 1fr);
+            }
+            .joystick-zone {
+                width: 104px;
+                height: 104px;
+            }
+            .joystick-knob {
+                width: 44px;
+                height: 44px;
+            }
+            .btn-touch-fire {
+                width: 88px;
+                height: 88px;
+                font-size: 13px;
+            }
         }
     </style>
 </head>
 <body>
 
 <div id="game-container">
-    <canvas id="gameCanvas" width="960" height="640"></canvas>
+    <div id="battle-stage">
+        <canvas id="gameCanvas" width="960" height="640"></canvas>
+    </div>
 
     <!-- Боевой интерфейс (HUD) -->
     <div id="hud" class="hidden">
         <div class="hud-panel">
-            <div style="font-size: 12px; font-weight: 800; color: #fde047; letter-spacing: 0.5px;">ИМПЕРАТОР И ВСАДНИК</div>
+            <div class="hud-panel-title" style="font-size: 12px; font-weight: 800; color: #fde047; letter-spacing: 0.5px;">ИМПЕРАТОР И ВСАДНИК</div>
             <div class="hp-bar-wrap"><div id="player-hp-fill" class="hp-bar-fill"></div></div>
             <div id="hud-live-stats" style="font-size: 11px; color: #cbd5e1; margin-top: 5px;">⏱ 0с | 🎯 100% | 💔 -0</div>
         </div>
@@ -530,9 +929,24 @@
         </div>
 
         <div class="hud-panel" style="text-align: right;">
-            <div style="font-size: 12px; font-weight: 800; color: #fb7185; letter-spacing: 0.5px;">ФЕЛЬДМАРШАЛ КУТУЗОВ</div>
+            <div class="hud-panel-title" style="font-size: 12px; font-weight: 800; color: #fb7185; letter-spacing: 0.5px;">ФЕЛЬДМАРШАЛ КУТУЗОВ</div>
             <div class="hp-bar-wrap"><div id="boss-hp-fill" class="hp-bar-fill"></div></div>
             <div id="boss-hp-text" style="font-size: 11.5px; color: #e2e8f0; margin-top: 5px;">100 / 100</div>
+        </div>
+    </div>
+
+    <!-- Сенсорное управление для смартфона -->
+    <div id="mobile-controls" class="hidden">
+        <div id="joystick-zone" class="joystick-zone">
+            <div class="joystick-crosshair"></div>
+            <div id="joystick-knob" class="joystick-knob"></div>
+        </div>
+        <div class="mobile-action-cluster">
+            <button id="autofire-btn" class="btn-autofire" type="button" onclick="toggleAutoFire()">⚡ АВТО-ОГОНЬ: ВЫКЛ</button>
+            <button id="touch-fire-btn" class="btn-touch-fire" type="button">
+                <span style="font-size: 24px;">🔥</span>
+                <span>ОГОНЬ</span>
+            </button>
         </div>
     </div>
 
@@ -550,7 +964,7 @@
         </div>
 
         <div class="lobby-center">
-            <div style="text-align: center;">
+            <div class="preview-wrap">
                 <canvas id="previewCanvas" class="preview-box" width="360" height="270"></canvas>
                 <div id="current-loadout-text" style="font-size: 12.5px; margin-top: 7px; font-weight: 700; color: #fde047;"></div>
             </div>
@@ -669,6 +1083,11 @@
                 <span>🔢 Всплывающие цифры урона:</span>
                 <button id="toggle-dmg-btn" class="btn-secondary" style="padding: 6px 14px;" onclick="toggleSettingBool('showDamage')">ВКЛ</button>
             </div>
+
+            <div class="setting-row">
+                <span>📱 Экранные кнопки (джойстик и огонь):</span>
+                <button id="toggle-touch-btn" class="btn-secondary" style="padding: 6px 14px;" onclick="cycleTouchMode()">АВТО</button>
+            </div>
         </div>
 
         <button class="btn-secondary" onclick="openScreen('screen-lobby')">⬅️ СОХРАНИТЬ И ВЕРНУТЬСЯ В ЛОББИ</button>
@@ -709,7 +1128,8 @@ let userSettings = {
     musicVolume: 0.45,
     sfxVolume: 0.70,
     screenShake: true,
-    showDamage: true
+    showDamage: true,
+    touchMode: 'auto' // 'auto' | 'on' | 'off'
 };
 
 function initAudio() {
@@ -2093,6 +2513,183 @@ let boss = {
     hitFlash: 0
 };
 
+let isTouchFireHeld = false;
+let isAutoFireEnabled = false;
+let joyVector = { x: 0, y: 0 };
+let joyTouchId = null;
+let canvasDragTouchId = null;
+let canvasDragLast = { x: 0, y: 0 };
+
+function isTouchDeviceDetected() {
+    return ('ontouchstart' in window) || (navigator.maxTouchPoints > 0) || window.innerWidth <= 979;
+}
+
+function shouldShowMobileControls() {
+    if (userSettings.touchMode === 'on') return true;
+    if (userSettings.touchMode === 'off') return false;
+    return isTouchDeviceDetected();
+}
+
+function updateMobileControlsVisibility() {
+    const mc = document.getElementById('mobile-controls');
+    const gc = document.getElementById('game-container');
+    if (isBattleActive) {
+        gc.classList.add('battle-mode');
+        if (shouldShowMobileControls()) {
+            mc.classList.remove('hidden');
+            mc.classList.add('active');
+        } else {
+            mc.classList.add('hidden');
+            mc.classList.remove('active');
+        }
+    } else {
+        gc.classList.remove('battle-mode');
+        mc.classList.add('hidden');
+        mc.classList.remove('active');
+    }
+}
+
+function toggleAutoFire() {
+    initAudio();
+    isAutoFireEnabled = !isAutoFireEnabled;
+    const btn = document.getElementById('autofire-btn');
+    if (btn) {
+        btn.classList.toggle('on', isAutoFireEnabled);
+        btn.innerText = isAutoFireEnabled ? '⚡ АВТО-ОГОНЬ: ВКЛ' : '⚡ АВТО-ОГОНЬ: ВЫКЛ';
+    }
+}
+
+function resetTouchState() {
+    isTouchFireHeld = false;
+    joyVector = { x: 0, y: 0 };
+    joyTouchId = null;
+    canvasDragTouchId = null;
+    const knob = document.getElementById('joystick-knob');
+    if (knob) knob.style.transform = 'translate(0px, 0px)';
+    const fireBtn = document.getElementById('touch-fire-btn');
+    if (fireBtn) fireBtn.classList.remove('pressed');
+}
+
+// Виртуальный джойстик
+const joyZone = document.getElementById('joystick-zone');
+const joyKnob = document.getElementById('joystick-knob');
+
+function handleJoystickMove(clientX, clientY) {
+    const rect = joyZone.getBoundingClientRect();
+    const centerX = rect.left + rect.width / 2;
+    const centerY = rect.top + rect.height / 2;
+    const maxRadius = rect.width * 0.36;
+    let dx = clientX - centerX;
+    let dy = clientY - centerY;
+    const dist = Math.hypot(dx, dy);
+    if (dist > maxRadius) {
+        dx = (dx / dist) * maxRadius;
+        dy = (dy / dist) * maxRadius;
+    }
+    joyKnob.style.transform = `translate(${dx}px, ${dy}px)`;
+    const deadzone = 6;
+    joyVector.x = Math.abs(dx) > deadzone ? dx / maxRadius : 0;
+    joyVector.y = Math.abs(dy) > deadzone ? dy / maxRadius : 0;
+}
+
+joyZone.addEventListener('touchstart', e => {
+    e.preventDefault();
+    initAudio();
+    if (joyTouchId !== null) return;
+    const t = e.changedTouches[0];
+    joyTouchId = t.identifier;
+    handleJoystickMove(t.clientX, t.clientY);
+}, { passive: false });
+
+joyZone.addEventListener('touchmove', e => {
+    e.preventDefault();
+    for (let i = 0; i < e.changedTouches.length; i++) {
+        const t = e.changedTouches[i];
+        if (t.identifier === joyTouchId) {
+            handleJoystickMove(t.clientX, t.clientY);
+        }
+    }
+}, { passive: false });
+
+function endJoystickTouch(e) {
+    for (let i = 0; i < e.changedTouches.length; i++) {
+        if (e.changedTouches[i].identifier === joyTouchId) {
+            joyTouchId = null;
+            joyVector = { x: 0, y: 0 };
+            joyKnob.style.transform = 'translate(0px, 0px)';
+        }
+    }
+}
+joyZone.addEventListener('touchend', endJoystickTouch);
+joyZone.addEventListener('touchcancel', endJoystickTouch);
+
+// Кнопка огня на телефоне
+const touchFireBtn = document.getElementById('touch-fire-btn');
+touchFireBtn.addEventListener('touchstart', e => {
+    e.preventDefault();
+    initAudio();
+    isTouchFireHeld = true;
+    touchFireBtn.classList.add('pressed');
+}, { passive: false });
+
+function releaseTouchFire(e) {
+    e.preventDefault();
+    isTouchFireHeld = false;
+    touchFireBtn.classList.remove('pressed');
+}
+touchFireBtn.addEventListener('touchend', releaseTouchFire);
+touchFireBtn.addEventListener('touchcancel', releaseTouchFire);
+
+// Управление перетаскиванием пальцем прямо по игровому полю (canvas)
+function clientToCanvasCoords(clientX, clientY) {
+    const rect = canvas.getBoundingClientRect();
+    const scaleX = canvas.width / rect.width;
+    const scaleY = canvas.height / rect.height;
+    return {
+        x: (clientX - rect.left) * scaleX,
+        y: (clientY - rect.top) * scaleY
+    };
+}
+
+canvas.addEventListener('touchstart', e => {
+    if (!isBattleActive) return;
+    e.preventDefault();
+    initAudio();
+    for (let i = 0; i < e.changedTouches.length; i++) {
+        const t = e.changedTouches[i];
+        if (canvasDragTouchId === null) {
+            canvasDragTouchId = t.identifier;
+            canvasDragLast = clientToCanvasCoords(t.clientX, t.clientY);
+        }
+    }
+}, { passive: false });
+
+canvas.addEventListener('touchmove', e => {
+    if (!isBattleActive || canvasDragTouchId === null) return;
+    e.preventDefault();
+    for (let i = 0; i < e.changedTouches.length; i++) {
+        const t = e.changedTouches[i];
+        if (t.identifier === canvasDragTouchId) {
+            const pos = clientToCanvasCoords(t.clientX, t.clientY);
+            const dx = pos.x - canvasDragLast.x;
+            const dy = pos.y - canvasDragLast.y;
+            player.x += dx * 1.15;
+            player.y += dy * 1.15;
+            canvasDragLast = pos;
+        }
+    }
+}, { passive: false });
+
+function endCanvasTouch(e) {
+    for (let i = 0; i < e.changedTouches.length; i++) {
+        if (e.changedTouches[i].identifier === canvasDragTouchId) {
+            canvasDragTouchId = null;
+        }
+    }
+}
+canvas.addEventListener('touchend', endCanvasTouch);
+canvas.addEventListener('touchcancel', endCanvasTouch);
+
 window.addEventListener('keydown', e => {
     keys[e.code] = true;
     if (e.code === 'Space' && isBattleActive) {
@@ -2176,7 +2773,9 @@ function startBattle() {
     cannonTimer = 30;
     shakeAmount = 0;
     isFiringHeld = false;
+    resetTouchState();
     isBattleActive = true;
+    updateMobileControlsVisibility();
     startBattleMusic();
     updateHud();
 }
@@ -2214,6 +2813,8 @@ function damagePlayer(amount) {
     updateHud();
     if (player.hp <= 0) {
         isBattleActive = false;
+        resetTouchState();
+        updateMobileControlsVisibility();
         stopBattleMusic();
         showDefeatModal();
     }
@@ -2231,15 +2832,21 @@ function updateBattle() {
     if (boss.hitFlash > 0) boss.hitFlash--;
     if (shakeAmount > 0) shakeAmount = Math.max(0, shakeAmount - 0.8);
 
-    if (isFiringHeld) fireSeed();
+    if (isFiringHeld || isTouchFireHeld || isAutoFireEnabled) fireSeed();
 
     if (!boss.dying) {
-        let moveX = 0;
-        let moveY = 0;
+        let moveX = joyVector.x;
+        let moveY = joyVector.y;
         if (keys['ArrowUp'] || keys['KeyW']) moveY -= 1;
         if (keys['ArrowDown'] || keys['KeyS']) moveY += 1;
         if (keys['ArrowLeft'] || keys['KeyA']) moveX -= 1;
         if (keys['ArrowRight'] || keys['KeyD']) moveX += 1;
+
+        const mag = Math.hypot(moveX, moveY);
+        if (mag > 1) {
+            moveX /= mag;
+            moveY /= mag;
+        }
 
         player.vx = moveX * player.speed;
         player.vy = moveY * player.speed;
@@ -2294,6 +2901,8 @@ function updateBattle() {
         boss.deathAlpha -= 0.015;
         if (boss.deathAlpha <= 0) {
             isBattleActive = false;
+            resetTouchState();
+            updateMobileControlsVisibility();
             stopBattleMusic();
             showVictoryModal();
         }
@@ -2648,6 +3257,8 @@ function nextLevel() {
 function returnToLobby() {
     isBattleActive = false;
     isFiringHeld = false;
+    resetTouchState();
+    updateMobileControlsVisibility();
     stopBattleMusic();
     document.getElementById('hud').classList.add('hidden');
     document.getElementById('end-modal').classList.add('hidden');
@@ -2674,6 +3285,15 @@ function updateSettingsFromUI() {
 function toggleSettingBool(key) {
     userSettings[key] = !userSettings[key];
     saveProgress();
+    updateUI();
+}
+
+function cycleTouchMode() {
+    const order = ['auto', 'on', 'off'];
+    const next = order[(order.indexOf(userSettings.touchMode || 'auto') + 1) % order.length];
+    userSettings.touchMode = next;
+    saveProgress();
+    updateMobileControlsVisibility();
     updateUI();
 }
 
@@ -2704,6 +3324,8 @@ function updateUI() {
     document.getElementById('sfx-vol-label').innerText = `${Math.round(userSettings.sfxVolume * 100)}%`;
     document.getElementById('toggle-shake-btn').innerText = userSettings.screenShake ? 'ВКЛ' : 'ВЫКЛ';
     document.getElementById('toggle-dmg-btn').innerText = userSettings.showDamage ? 'ВКЛ' : 'ВЫКЛ';
+    const touchLabels = { auto: 'АВТО', on: 'ВКЛ', off: 'ВЫКЛ' };
+    document.getElementById('toggle-touch-btn').innerText = touchLabels[userSettings.touchMode || 'auto'];
 
     renderLevelsGrid();
     renderWardrobe();
